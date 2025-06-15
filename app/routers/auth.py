@@ -1,0 +1,119 @@
+import os
+from datetime import timedelta
+from dotenv import load_dotenv
+from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi.responses import RedirectResponse
+from sqlalchemy.orm import Session
+
+from app.services.user import get_user_by_email, create_user, get_provider_by_provider_id, create_auth_provider, create_user_with_auth_provider
+from app.services.external_api.github import get_github_user
+from app.schemas.user import RegisterUser, LoginUser, Token
+from app.db.database import get_db
+from app.core.security import verify_password, create_access_token
+
+load_dotenv()
+
+router = APIRouter(
+    prefix="/auth",
+)
+
+GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
+GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
+GITHUB_AUTH_URL = "https://github.com/login/oauth/authorize"
+GITHUB_TOKEN_URL = "https://github.com/login/oauth/access_token"
+GITHUB_USER_URL = "https://api.github.com/user"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+@router.get("/login/github")
+async def github_login():
+    return RedirectResponse(url=f"{GITHUB_AUTH_URL}?client_id={GITHUB_CLIENT_ID}&scope=user&state=login", status_code=302)
+
+@router.get("/register/github")
+async def github_register():
+    return RedirectResponse(url=f"{GITHUB_AUTH_URL}?client_id={GITHUB_CLIENT_ID}&scope=user&state=register", status_code=302)
+ 
+@router.get("/github-code")
+async def github_code(response: Response, code: str, state: str, db: Session = Depends(get_db)):
+    if state not in ["login", "register"]:
+        raise HTTPException(status_code=400, detail="Invalid state parameter")
+    elif state == "login":
+        github_user = await get_github_user(code=code)
+        
+        existing_provider = get_provider_by_provider_id(db, str(github_user["id"]), "github")
+        if not existing_provider:
+            raise HTTPException(status_code=404, detail="GitHub account not linked")
+        
+        user = existing_provider.user
+        
+        access_token = create_access_token(
+            data={"sub": str(user.id)},
+            expired_delta= timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        )
+        
+        response.set_cookie(
+            key="access_token",
+            value=access_token
+        )
+        
+        return Token(
+            access_token=access_token,
+            token_type="bearer"
+        )
+        
+    else:
+        github_user = await get_github_user(code=code)
+        existing_user = get_user_by_email(db, github_user["email"])
+        
+        if existing_user:
+            existing_provider = get_provider_by_provider_id(db, str(github_user["id"]), "github")
+            if existing_provider:
+                return {"message": "User already registered with GitHub"}
+
+            create_auth_provider(db, existing_user.id, "github", github_user["id"])
+            
+            return {"message": "Github account linked successfully"}
+        
+        user = create_user_with_auth_provider(db, github_user["login"], github_user["email"])
+        create_auth_provider(db, user.id, "github", github_user["id"])
+        
+        return {"message": "Success", "user": user}
+
+@router.post("/register")
+async def register_user(request: RegisterUser, db: Session = Depends(get_db)):
+    is_email_exists = get_user_by_email(db, request.email)
+    
+    if is_email_exists:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    new_user = create_user(db, request)
+    
+    return {
+        "message": "Registration successful",
+        "user_id": new_user.id
+        }
+    
+@router.post("/login")
+def login(request: LoginUser, response: Response, db: Session = Depends(get_db)):
+    user = get_user_by_email(db, request.email)
+    
+    if not user:
+        raise HTTPException(status_code=400, detail="User not found")
+    
+    if not verify_password(request.password, user.password):
+        raise HTTPException(status_code=400, detail="Incorrect password")
+
+    access_token = create_access_token(
+        data={"sub": str(user.id)},
+        expired_delta= timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
+    
+    response.set_cookie(
+        key="access_token",
+        value=access_token
+    )
+    
+    return Token(
+        access_token=access_token,
+        token_type="bearer"
+    )
+
