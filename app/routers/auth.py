@@ -9,7 +9,7 @@ from app.services.user import get_user_by_email, create_user, get_provider_by_pr
 from app.services.external_api.github import get_github_user
 from app.schemas.user import RegisterUser, LoginUser, Token
 from app.db.database import get_db
-from app.core.security import verify_password, create_access_token
+from app.core.security import verify_password, create_access_token, create_refresh_token
 
 load_dotenv()
 
@@ -23,6 +23,7 @@ GITHUB_AUTH_URL = "https://github.com/login/oauth/authorize"
 GITHUB_TOKEN_URL = "https://github.com/login/oauth/access_token"
 GITHUB_USER_URL = "https://api.github.com/user"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
 
 @router.get("/login/github")
 async def github_login():
@@ -107,9 +108,19 @@ def login(request: LoginUser, response: Response, db: Session = Depends(get_db))
         expired_delta= timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
     
+    refresh_token_expires = timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
+    refresh_token = create_refresh_token(
+        data={"sub": str(user.id)},
+        expired_delta= timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
+    )
+    print(f"Refresh token: {refresh_token}")
     response.set_cookie(
-        key="access_token",
-        value=access_token
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=True,
+        samesite="Lax",
+        max_age=int(refresh_token_expires.total_seconds()),
     )
     
     return Token(
