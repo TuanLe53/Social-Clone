@@ -110,10 +110,11 @@ def login(request: LoginUser, response: Response, db: Session = Depends(get_db))
     
     refresh_token_expires = timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
     refresh_token = create_refresh_token(
+        db_session=db,
         data={"sub": str(user.id)},
         expired_delta= timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
     )
-    print(f"Refresh token: {refresh_token}")
+
     response.set_cookie(
         key="refresh_token",
         value=refresh_token,
