@@ -1,11 +1,12 @@
 import os
-from datetime import timedelta
+import jwt
+from datetime import timedelta, datetime
 from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
-from app.services.user import get_user_by_email, create_user, get_provider_by_provider_id, create_auth_provider, create_user_with_auth_provider
+from app.services.user import get_user_by_email, create_user, get_provider_by_provider_id, create_auth_provider, create_user_with_auth_provider, get_token_by_id, get_token_by_user, delete_token
 from app.services.external_api.github import get_github_user
 from app.schemas.user import RegisterUser, LoginUser, Token
 from app.db.database import get_db
@@ -24,6 +25,8 @@ GITHUB_TOKEN_URL = "https://github.com/login/oauth/access_token"
 GITHUB_USER_URL = "https://api.github.com/user"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
 
 @router.get("/login/github")
 async def github_login():
@@ -94,7 +97,7 @@ async def register_user(request: RegisterUser, db: Session = Depends(get_db)):
         }
     
 @router.post("/login")
-def login(request: LoginUser, response: Response, db: Session = Depends(get_db)):
+async def login(request: LoginUser, response: Response, db: Session = Depends(get_db)):
     user = get_user_by_email(db, request.email)
     
     if not user:
@@ -107,6 +110,10 @@ def login(request: LoginUser, response: Response, db: Session = Depends(get_db))
         data={"sub": str(user.id)},
         expired_delta= timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
+    
+    existed_refresh_token = get_token_by_user(db, user.id)
+    if existed_refresh_token:
+        delete_token(db, existed_refresh_token.id)
     
     refresh_token_expires = timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
     refresh_token = create_refresh_token(
@@ -128,4 +135,3 @@ def login(request: LoginUser, response: Response, db: Session = Depends(get_db))
         access_token=access_token,
         token_type="bearer"
     )
-
