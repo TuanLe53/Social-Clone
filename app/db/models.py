@@ -47,4 +47,3 @@ class RefreshToken(Base):
     id = Column(UUIDType(binary=False), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUIDType(binary=False), ForeignKey("users.id"))
     expires = Column(DateTime, nullable=False)
-    is_revoked = Column(Boolean, unique=False, default=False)
