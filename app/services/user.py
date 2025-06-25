@@ -1,10 +1,23 @@
 from uuid import UUID
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from app.db.models import User, AuthProvider
+from app.db.models import User, AuthProvider, RefreshToken
 from app.schemas.user import RegisterUser
 from app.core.security import hash_password
 
+def get_token_by_id(db_session: Session, token_id: str) -> RefreshToken:
+    return db_session.query(RefreshToken).filter(RefreshToken.id == token_id).first()
+
+def get_token_by_user(db_session: Session, user_id: str) -> RefreshToken:
+    return db_session.query(RefreshToken).filter(RefreshToken.user_id == user_id).first()
+
+def delete_token(db_session: Session, token_id: str) -> None:
+    token = get_token_by_id(db_session, token_id)
+    if not token:
+        raise HTTPException(status_code=404, detail="Token not found")
+    
+    db_session.delete(token)
+    db_session.commit()
 
 def get_user_by_email(db_session: Session, email: str) -> User:
     return db_session.query(User).filter(User.email == email).first()
