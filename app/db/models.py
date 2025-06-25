@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, TIMESTAMP, ForeignKey, Boolean
+from sqlalchemy import Column, String, TIMESTAMP, ForeignKey, Boolean, DateTime
 from sqlalchemy_utils import UUIDType
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
@@ -41,3 +41,10 @@ class AuthProvider(Base):
     provider = Column(String(50), nullable=False)
     provider_id = Column(String, unique=True, index=True, nullable=False)
     user = relationship("User", back_populates="providers")
+
+class RefreshToken(Base):
+    __tablename__ = "refresh_tokens"
+    id = Column(UUIDType(binary=False), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUIDType(binary=False), ForeignKey("users.id"))
+    expires = Column(DateTime, nullable=False)
+    is_revoked = Column(Boolean, unique=False, default=False)
