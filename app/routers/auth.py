@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
-from app.services.user import get_user_by_email, create_user, get_provider_by_provider_id, create_auth_provider, create_user_with_auth_provider, get_token_by_id, get_token_by_user, delete_token
+from app.services.user import get_user_by_email, get_user_by_id, create_user, get_provider_by_provider_id, create_auth_provider, create_user_with_auth_provider, get_token_by_id, get_token_by_user, delete_token
 from app.services.external_api.github import get_github_user
 from app.schemas.user import RegisterUser, LoginUser, Token
 from app.db.database import get_db
@@ -122,6 +122,88 @@ async def login(request: LoginUser, response: Response, db: Session = Depends(ge
         expired_delta= timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
     )
 
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=True,
+        samesite="Lax",
+        max_age=int(refresh_token_expires.total_seconds()),
+    )
+    
+    return Token(
+        access_token=access_token,
+        token_type="bearer"
+    )
+    
+@router.post("/refresh")
+async def refresh_access_token(request: Request, response: Response, db: Session = Depends(get_db)):
+    refresh_token_from_cookie = request.cookies.get("refresh_token")
+    
+    if not refresh_token_from_cookie:
+        raise HTTPException(
+            status_code=401,
+            detail="Refresh token not found in cookie",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        
+    try:
+        payload = jwt.decode(refresh_token_from_cookie, SECRET_KEY, algorithms=[ALGORITHM])
+        token_id = payload.get("refresh_token_id")
+        if not token_id:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid refresh token payload",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except jwt.PyJWTError:
+        raise HTTPException(
+            status_code=401,
+            detail="Could not validate refresh token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        
+    db_token = get_token_by_id(db, token_id)
+    
+    if not db_token:
+        raise HTTPException(
+            status_code=401,
+            detail="Refresh token not found or already revoked",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        
+    if datetime.utcnow() > db_token.expires:
+        # Nếu refresh token hết hạn, đánh dấu là đã bị vô hiệu hóa trong DB
+        delete_token(db, db_token.id)
+        raise HTTPException(
+            status_code=401,
+            detail="Refresh token expired. Please log in again.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        
+    user_id = db_token.user_id
+    user = get_user_by_id(db, user_id)
+    if user is None:
+        raise HTTPException(
+            status_code=401,
+            detail="User not found for refresh token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        
+    access_token = create_access_token(
+        data={"sub": str(user.id)},
+        expired_delta= timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
+    
+    # Xóa refresh token cũ
+    delete_token(db, db_token.id)
+    refresh_token_expires = timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
+    refresh_token = create_refresh_token(
+        db_session=db,
+        data={"sub": str(user.id)},
+        expired_delta= timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
+    )
+    
     response.set_cookie(
         key="refresh_token",
         value=refresh_token,
