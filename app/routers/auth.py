@@ -53,10 +53,25 @@ async def github_code(response: Response, code: str, state: str, db: Session = D
             data={"sub": str(user.id)},
             expired_delta= timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         )
-        
+
+        existed_refresh_token = get_token_by_user(db, user.id)
+        if existed_refresh_token:
+            delete_token(db, existed_refresh_token.id)
+
+        refresh_token_expires = timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
+        refresh_token = create_refresh_token(
+            db_session=db,
+            data={"sub": str(user.id)},
+            expired_delta= timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
+        )
+
         response.set_cookie(
-            key="access_token",
-            value=access_token
+            key="refresh_token",
+            value=refresh_token,
+            httponly=True,
+            secure=True,
+            samesite="Lax",
+            max_age=int(refresh_token_expires.total_seconds()),
         )
         
         return Token(
