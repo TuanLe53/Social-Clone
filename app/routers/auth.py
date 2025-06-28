@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
-from app.services.user import get_user_by_email, get_user_by_id, create_user, get_provider_by_provider_id, create_auth_provider, create_user_with_auth_provider, get_token_by_id, get_token_by_user, delete_token
+from app.services.user import get_user_by_email, get_user_by_id, get_user_by_username, create_user, get_provider_by_provider_id, create_auth_provider, create_user_with_auth_provider, get_token_by_id, get_token_by_user, delete_token
 from app.services.external_api.github import get_github_user
 from app.schemas.user import RegisterUser, LoginUser, Token
 from app.db.database import get_db
@@ -100,9 +100,12 @@ async def github_code(response: Response, code: str, state: str, db: Session = D
 @router.post("/register")
 async def register_user(request: RegisterUser, db: Session = Depends(get_db)):
     is_email_exists = get_user_by_email(db, request.email)
-    
     if is_email_exists:
         raise HTTPException(status_code=400, detail="Email already registered")
+    
+    is_username_exists = get_user_by_username(db, request.username)
+    if is_username_exists:
+        raise HTTPException(status_code=400, detail="Username already registered")
     
     new_user = create_user(db, request)
     
@@ -142,7 +145,7 @@ async def login(request: LoginUser, response: Response, db: Session = Depends(ge
         value=refresh_token,
         httponly=True,
         secure=True,
-        samesite="Lax",
+        samesite="none",
         max_age=int(refresh_token_expires.total_seconds()),
     )
     
@@ -187,7 +190,7 @@ async def refresh_access_token(request: Request, response: Response, db: Session
             headers={"WWW-Authenticate": "Bearer"},
         )
         
-    if datetime.utcnow() > db_token.expires:
+    if datetime.now() > db_token.expires:
         # Nếu refresh token hết hạn, đánh dấu là đã bị vô hiệu hóa trong DB
         delete_token(db, db_token.id)
         raise HTTPException(
@@ -224,7 +227,7 @@ async def refresh_access_token(request: Request, response: Response, db: Session
         value=refresh_token,
         httponly=True,
         secure=True,
-        samesite="Lax",
+        samesite="none",
         max_age=int(refresh_token_expires.total_seconds()),
     )
     
