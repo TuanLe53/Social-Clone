@@ -35,7 +35,8 @@ def create_access_token(data: dict, expired_delta: timedelta | None = None) -> s
     return encoded_jwt
     
 def create_refresh_token(db_session: Session, data: dict, expired_delta: timedelta | None = None) -> str:
-    to_encode = {"refresh_token_id": str(uuid.uuid4())}
+    to_encode = data.copy()
+    to_encode["refresh_token_id"] = str(uuid.uuid4())
 
     if expired_delta is not None:
         expire = datetime.now(timezone.utc) + expired_delta
