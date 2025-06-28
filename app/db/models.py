@@ -14,7 +14,7 @@ class User(Base):
     __tablename__ = "users"
     
     id = Column(UUIDType(binary=False), primary_key=True, default=uuid.uuid4)
-    username = Column(String(50), nullable=False)
+    username = Column(String(50), nullable=False, unique=True, index=True)
     email = Column(String(255), unique=True, nullable=False)
     password = Column(String(128), nullable=True)
     
@@ -22,6 +22,7 @@ class User(Base):
     
     created_at = Column(TIMESTAMP, nullable=False, server_default=func.now())
     last_login = Column(TIMESTAMP, nullable=True)
+    is_private = Column(Boolean, default=False, nullable=False)
     
     is_deleted = Column(Boolean, unique=False, default=False)
     deleted_at = Column(TIMESTAMP, nullable=True)
