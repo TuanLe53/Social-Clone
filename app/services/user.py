@@ -22,6 +22,9 @@ def delete_token(db_session: Session, token_id: str) -> None:
 def get_user_by_email(db_session: Session, email: str) -> User:
     return db_session.query(User).filter(User.email == email).first()
 
+def get_user_by_username(db_session: Session, username: str) -> User:
+    return db_session.query(User).filter(User.username == username).first()
+
 def get_user_by_id(db_session: Session, user_id: str) -> User:
     if not isinstance(user_id, UUID):
         try:
