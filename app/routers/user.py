@@ -7,11 +7,20 @@ from app.db.database import get_db
 from app.db.models import User
 from app.schemas.user import UserProfile
 from app.dependencies import get_current_user
-from app.services.user import follow_user, unfollow_user, get_followers_by_user_id, get_following_by_user_id
+from app.services.user import follow_user, unfollow_user, get_followers_by_user_id, get_following_by_user_id, get_user_by_username
 
 router = APIRouter(
     prefix="/user",
 )
+
+@router.get("/{username}", response_model=UserProfile)
+async def get_user_profile(username: str, db: Session = Depends(get_db)):
+    is_user_exists = get_user_by_username(db, username)
+    if not is_user_exists:
+        raise HTTPException(status_code=404, detail="User not found.")
+    
+    return is_user_exists
+
 
 @router.post("/follow")
 async def following_user(user: Annotated[User, Depends(get_current_user)], following_id: UUID, db: Session = Depends(get_db)):
