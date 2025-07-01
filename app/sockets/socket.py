@@ -1,4 +1,5 @@
 import socketio
+from app.sockets.notifications import NotificationSocket
 
 sio = socketio.AsyncServer(async_mode="asgi", cors_allowed_origins=[])
 sio_app = socketio.ASGIApp(sio, socketio_path='/ws/socket.io')
@@ -10,3 +11,5 @@ async def connect(sid, environ):
 @sio.event
 async def disconnect(sid):
     print(f"Client disconnected from default namespace: {sid}")
+    
+sio.register_namespace(NotificationSocket("/notifications"))
