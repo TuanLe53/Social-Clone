@@ -7,7 +7,7 @@ from app.db.database import get_db
 from app.db.models import User
 from app.schemas.user import UserProfile
 from app.dependencies import get_current_user
-from app.services.user import follow_user, unfollow_user, get_followers_by_user_id, get_following_by_user_id, get_user_by_username
+from app.services.user import follow_user, unfollow_user, get_followers_by_user_id, get_following_by_user_id, get_user_by_username, search_users_by_username
 
 router = APIRouter(
     prefix="/user",
@@ -21,6 +21,9 @@ async def get_user_profile(username: str, db: Session = Depends(get_db)):
     
     return is_user_exists
 
+@router.get("/search/", response_model=list[UserProfile])
+async def search_user_profile(username: str, limit: int = 10, offset: int = 0, db: Session = Depends(get_db)):
+    return search_users_by_username(db, username, limit, offset)
 
 @router.post("/follow")
 async def following_user(user: Annotated[User, Depends(get_current_user)], following_id: UUID, db: Session = Depends(get_db)):
