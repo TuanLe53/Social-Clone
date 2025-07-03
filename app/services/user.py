@@ -33,6 +33,14 @@ def get_user_by_id(db_session: Session, user_id: str) -> User:
             raise HTTPException(status_code=400, detail="Invalid UUID")
     return db_session.query(User).filter(User.id == user_id).first()
 
+def search_users_by_username(db_session: Session, username: str, limit: int, offset: int) -> list[User]:
+    return db_session.query(User)\
+        .filter(User.username.startswith(username))\
+        .order_by(User.username.asc())\
+        .limit(limit)\
+        .offset(offset)\
+        .all()
+
 def create_user(db_session: Session, register_data: RegisterUser) -> User:
     hash = hash_password(register_data.password)
     request_dict = register_data.model_dump()
