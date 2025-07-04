@@ -1,0 +1,39 @@
+import { useEffect, useState } from "react";
+import { Input } from "./ui/input";
+import { useDebounce } from "@/lib/hooks";
+import { searchUsers } from "@/api/user";
+
+export default function SearchBar() {
+    const [username, setUsername] = useState<string>("");
+    const debouncedSearch = useDebounce(username);
+    const [users, setUsers] = useState<any[]>([]);
+
+
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            if (debouncedSearch) {                
+                try {
+                    const res = await searchUsers(debouncedSearch);
+                    setUsers(res.data);                
+                } catch (error: any) {
+                    const errorMessage = error.response?.data?.detail || 'An error occurred';
+                    console.log(errorMessage);
+                }
+            } else {
+                setUsers([]);
+            }
+        }
+
+        fetchUsers();
+    }, [debouncedSearch])
+    
+    return (
+        <div>
+            <Input value={username} placeholder="username" onChange={(e) => setUsername(e.target.value)}/>
+            {users.map((user) => (
+                <p key={user.id}>{user.username}</p>
+            ))}
+        </div>
+    )
+}
