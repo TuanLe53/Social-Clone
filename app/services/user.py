@@ -115,6 +115,15 @@ def unfollow_user(db_session: Session, user_id: str, following_id: str) -> User:
     
     return following
 
+def is_user_follows(db_session: Session, user_id: str, following_id: str) -> bool:
+    follower = get_user_by_id(db_session, user_id)
+    following = get_user_by_id(db_session, following_id)
+    
+    if not follower or not following:
+        raise HTTPException(status_code=400, detail="User not found")
+    
+    return following in follower.following
+
 def get_followers_by_user_id(db_session: Session, user_id: str) -> list[User]:
     user = get_user_by_id(db_session, user_id)
     if not user:
