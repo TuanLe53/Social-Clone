@@ -7,7 +7,7 @@ from app.db.database import get_db
 from app.db.models import User
 from app.schemas.user import UserProfile
 from app.dependencies import get_current_user
-from app.services.user import follow_user, unfollow_user, get_followers_by_user_id, get_following_by_user_id, get_user_by_username, search_users_by_username
+from app.services.user import follow_user, unfollow_user, get_followers_by_user_id, get_following_by_user_id, get_user_by_username, search_users_by_username, is_user_follows
 
 router = APIRouter(
     prefix="/user",
@@ -42,6 +42,12 @@ async def unfollowing_user(user: Annotated[User, Depends(get_current_user)], fol
     unfollowed_user = unfollow_user(db, user.id, following_id)
     
     return {"message": f"User {user.username} unfollowed user with username: {unfollowed_user.username}"}
+
+@router.get("/is_following/{user_id}")
+async def is_following_user(user_id: str, current_user: Annotated[User, Depends(get_current_user)], db: Session = Depends(get_db)):
+    is_followed = is_user_follows(db, current_user.id, user_id)
+    return {"is_following": is_followed}
+
 
 @router.get("/followers", response_model=list[UserProfile])
 async def get_followers(user_id: UUID, current_user: Annotated[User, Depends(get_current_user)], db: Session = Depends(get_db)):
