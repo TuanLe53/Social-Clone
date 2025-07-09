@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { useDebounce } from "@/lib/hooks";
 import { searchUsers } from "@/api/user";
+import UserCard from "./UserCard";
+import type { UserProfile } from "@/types/user";
 
 export default function SearchBar() {
     const [username, setUsername] = useState<string>("");
     const debouncedSearch = useDebounce(username);
-    const [users, setUsers] = useState<any[]>([]);
-
-
+    const [users, setUsers] = useState<UserProfile[]>([]);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -32,7 +32,7 @@ export default function SearchBar() {
         <div>
             <Input value={username} placeholder="username" onChange={(e) => setUsername(e.target.value)}/>
             {users.map((user) => (
-                <p key={user.id}>{user.username}</p>
+                <UserCard user={user} />
             ))}
         </div>
     )
