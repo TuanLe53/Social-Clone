@@ -7,6 +7,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { useAuth } from "@/contexts/auth";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -30,7 +31,8 @@ export default function LoginForm() {
     try {
         const response = await login(values)
         handleLogin(response.data.access_token)
-        navigate({to: '/'})
+        navigate({ to: '/' })
+        toast.success('Login successful!');
     } catch (error: any){
         const errorMessage = error.response?.data?.detail || 'An error occurred';
         form.setError('root', { message: errorMessage });
