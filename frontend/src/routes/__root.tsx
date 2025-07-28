@@ -1,33 +1,45 @@
-import { Outlet, createRootRoute, createRootRouteWithContext } from '@tanstack/react-router'
+import { Outlet, createRootRouteWithContext } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-import Header from '../components/Header'
 import { AuthProvider } from '@/contexts/auth'
 import type { Socket } from 'socket.io-client'
 import { Toaster } from 'sonner'
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import { AppSidebar } from '@/components/AppSidebar'
+import { useEffect } from 'react'
+import { notificationsSocket, socket } from '@/lib/socket'
 
 interface MyRouterContext{
   socket: Socket;
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
-  component: () => (
-    <AuthProvider>
-      <Header />
-      <Outlet />
-      <Toaster />
-      <TanStackRouterDevtools />
-    </AuthProvider>
-  )
+  component: RootComponent,
 })
 
-// export const Route = createRootRoute({
-//   component: () => (
-//     <AuthProvider>
+function RootComponent() {
 
-//       <Header />
+  useEffect(() => {
+    socket.connect();
 
-//       <Outlet />
-//       <TanStackRouterDevtools />
-//     </AuthProvider>
-//   ),
-// })
+    notificationsSocket.connect();
+
+    return () => {
+      socket.disconnect();
+      notificationsSocket.disconnect();
+    }
+  })
+  
+  return (
+    <AuthProvider>
+      <SidebarProvider>
+        <AppSidebar />
+        <main>
+          <SidebarTrigger />
+          <Outlet />
+        </main>
+      </SidebarProvider>
+      <Toaster />
+      {/* <TanStackRouterDevtools /> */}
+    </AuthProvider>
+  )
+}
