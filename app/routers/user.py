@@ -25,7 +25,7 @@ async def get_user_profile(username: str, db: Session = Depends(get_db)):
 async def search_user_profile(username: str, limit: int = 10, offset: int = 0, db: Session = Depends(get_db)):
     return search_users_by_username(db, username, limit, offset)
 
-@router.post("/follow")
+@router.post("/follow/")
 async def following_user(user: Annotated[User, Depends(get_current_user)], following_id: UUID, db: Session = Depends(get_db)):
     if user.id == following_id:
         raise HTTPException(status_code=400, detail="You cannot follow yourself.")
@@ -34,7 +34,7 @@ async def following_user(user: Annotated[User, Depends(get_current_user)], follo
     
     return {"message": f"User {user.username} followed user with username: {following_user.username}"}
 
-@router.delete("/follow")
+@router.delete("/follow/")
 async def unfollowing_user(user: Annotated[User, Depends(get_current_user)], following_id: UUID, db: Session = Depends(get_db)):
     if user.id == following_id:
         raise HTTPException(status_code=400, detail="You cannot unfollow yourself.")
@@ -49,12 +49,12 @@ async def is_following_user(user_id: str, current_user: Annotated[User, Depends(
     return {"is_following": is_followed}
 
 
-@router.get("/followers", response_model=list[UserProfile])
-async def get_followers(user_id: UUID, current_user: Annotated[User, Depends(get_current_user)], db: Session = Depends(get_db)):
+@router.get("/followers/", response_model=list[UserProfile])
+async def get_followers(user_id: UUID, db: Session = Depends(get_db)):
     followers = get_followers_by_user_id(db, user_id)
     return followers
 
-@router.get("/followings", response_model=list[UserProfile])
-async def get_followers(user_id: UUID, current_user: Annotated[User, Depends(get_current_user)], db: Session = Depends(get_db)):
+@router.get("/followings/", response_model=list[UserProfile])
+async def get_followers(user_id: UUID, db: Session = Depends(get_db)):
     followings = get_following_by_user_id(db, user_id)
     return followings
