@@ -30,10 +30,11 @@ export const Route = createFileRoute('/profile/$username')({
 function RouteComponent() {
     const { isAuthenticated } = useAuth();
     const { user, error } = Route.useLoaderData();
-    console.log(user);
-    const [selectedTab, setSelectedTab] = useState<'followers' | 'followings'>('followers');
-    const handleTabChange = (tab: 'followers' | 'followings') => {
-        setSelectedTab(tab);
+
+    const [activeTab, setActiveTab] = useState<string>('followers');
+
+    const handleTabChange = (tab: string) => {
+        setActiveTab(tab);
     }
 
     if (error) {
@@ -56,7 +57,7 @@ function RouteComponent() {
                     <Button type='button' onClick={() => handleTabChange('followings')}>125 followings</Button>
                 </DialogTrigger>
 
-                <FollowList selectedTab={selectedTab} user_id={user.id} />
+                <FollowList selectedTab={activeTab} onTabChange={handleTabChange} user_id={user.id} />
             </Dialog>
             {isAuthenticated && <FollowButton user={user}/>}
             
