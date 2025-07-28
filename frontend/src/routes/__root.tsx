@@ -7,6 +7,7 @@ import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/AppSidebar'
 import { useEffect } from 'react'
 import { notificationsSocket, socket } from '@/lib/socket'
+import { ThemeProvider } from '@/contexts/theme'
 
 interface MyRouterContext{
   socket: Socket;
@@ -31,15 +32,17 @@ function RootComponent() {
   
   return (
     <AuthProvider>
-      <SidebarProvider>
-        <AppSidebar />
-        <main>
-          <SidebarTrigger />
-          <Outlet />
-        </main>
-      </SidebarProvider>
-      <Toaster />
-      {/* <TanStackRouterDevtools /> */}
+      <ThemeProvider>
+        <SidebarProvider>
+          <AppSidebar />
+          <main>
+            <SidebarTrigger />
+            <Outlet />
+          </main>
+        </SidebarProvider>
+        <Toaster />
+        {/* <TanStackRouterDevtools /> */}
+      </ThemeProvider>
     </AuthProvider>
   )
 }
