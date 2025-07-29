@@ -26,9 +26,7 @@ export function AppSidebar() {
       <SidebarFooter>
         <Popover>
           <PopoverTrigger>
-            <Button>
-              <AlignJustify />
-            </Button>
+            <AlignJustify />
           </PopoverTrigger>
           <PopoverContent>
             <Button>
