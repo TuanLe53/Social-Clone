@@ -21,6 +21,10 @@ async def get_user_profile(username: str, db: Session = Depends(get_db)):
     
     return is_user_exists
 
+@router.get("/me/", response_model=UserProfile)
+async def get_current_user_profile(current_user: Annotated[User, Depends(get_current_user)]):
+    return current_user
+
 @router.get("/search/", response_model=list[UserProfile])
 async def search_user_profile(username: str, limit: int = 10, offset: int = 0, db: Session = Depends(get_db)):
     return search_users_by_username(db, username, limit, offset)
