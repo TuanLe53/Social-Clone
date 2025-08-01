@@ -1,5 +1,5 @@
 import { followUser, isFollowingUser, unfollowUser } from "@/api/user";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import type { UserProfile } from "@/types/user";
 import { useEffect, useState } from "react";
 
