@@ -1,4 +1,4 @@
-import { Outlet, createRootRouteWithContext } from '@tanstack/react-router'
+import { Outlet, createRootRouteWithContext, useRouterState } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { AuthProvider } from '@/contexts/auth'
 import type { Socket } from 'socket.io-client'
@@ -19,6 +19,17 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootComponent() {
 
+  const { location } = useRouterState();
+  const noSidebarRoutes = [
+    '/login',
+    '/register',
+    // '/reset-password',
+    // '/forgot-password',
+    // '/verify-email',
+  ];
+
+  const showSidebar = !noSidebarRoutes.includes(location.pathname);
+
   useEffect(() => {
     socket.connect();
 
@@ -33,13 +44,20 @@ function RootComponent() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <SidebarProvider>
-          <AppSidebar />
+        {/* Conditionally render the layout based on the current route */}
+        {showSidebar ? (
+          <SidebarProvider>
+            <AppSidebar />
+            <main>
+              <SidebarTrigger />
+              <Outlet />
+            </main>
+          </SidebarProvider>
+        ) : (
           <main>
-            <SidebarTrigger />
             <Outlet />
           </main>
-        </SidebarProvider>
+        )}
         <Toaster />
         {/* <TanStackRouterDevtools /> */}
       </ThemeProvider>
