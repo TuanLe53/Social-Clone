@@ -3,7 +3,7 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { AuthProvider, useAuth } from '@/contexts/auth'
 import type { Socket } from 'socket.io-client'
 import { Toaster } from 'sonner'
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import { SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/AppSidebar'
 import { useEffect } from 'react'
 import { notificationsSocket, socket } from '@/lib/socket'
@@ -46,7 +46,6 @@ function AuthenticatedLayout() {
     <SidebarProvider>
       <AppSidebar />
       <main>
-        <SidebarTrigger />
         <Outlet />
       </main>
     </SidebarProvider>
