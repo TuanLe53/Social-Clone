@@ -2,27 +2,40 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { Link } from "@tanstack/react-router"
 import { Button } from "./ui/button"
 import { AlignJustify } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
 import { DarkModeButton } from "./buttons/DarkModeButton"
+import SearchButton from "./buttons/SearchButton"
 
 export function AppSidebar() {
+
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarHeader>
         <Link to="/">
           <h1>Social</h1>
         </Link>
       </SidebarHeader>
+
       <SidebarContent>
-        {/* <SidebarGroup />
-        <SidebarGroup /> */}
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive>
+              <SearchButton />
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+
+
       </SidebarContent>
+
       <SidebarFooter>
         <Popover>
           <PopoverTrigger>
