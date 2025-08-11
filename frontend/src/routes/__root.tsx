@@ -32,7 +32,7 @@ function RootComponent() {
     <AuthProvider>
       <ThemeProvider>
         <AuthenticatedLayout />
-        <Toaster />
+        <Toaster position='top-right' richColors/>
         {/* <TanStackRouterDevtools /> */}
       </ThemeProvider>
     </AuthProvider>
