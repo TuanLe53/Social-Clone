@@ -3,11 +3,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { useAuth } from "@/contexts/auth";
 import { toast } from "sonner";
+import { CircleAlert } from "lucide-react";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -73,9 +74,12 @@ export default function LoginForm() {
                     />
 
                     {form.formState.errors.root && (
-                    <p>
-                        {form.formState.errors.root.message}
-                    </p>
+                        <div className="flex items-start gap-2 p-3 mb-4 border border-red-300 rounded-md bg-red-50 text-red-700">
+                            <CircleAlert className="mt-1 h-5 w-5 text-red-500" />
+                            <p className="text-sm font-medium">
+                                {form.formState.errors.root.message}
+                            </p>
+                        </div>
                     )}
 
                     <Button type="submit" className="w-full mb-4">Submit</Button>
