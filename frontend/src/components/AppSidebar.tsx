@@ -6,6 +6,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar"
 import { Link } from "@tanstack/react-router"
 import { Button } from "./ui/button"
@@ -15,12 +16,17 @@ import { DarkModeButton } from "./buttons/DarkModeButton"
 import SearchButton from "./buttons/SearchButton"
 
 export function AppSidebar() {
+  const { state } = useSidebar();
 
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <Link to="/">
-          <h1>Social</h1>
+          {state == "collapsed" ?
+            <img src="https://placehold.co/50x50" alt="Placeholder image" />
+            :
+            <h1>Social</h1>
+          }
         </Link>
       </SidebarHeader>
 
