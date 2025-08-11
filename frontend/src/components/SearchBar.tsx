@@ -30,10 +30,14 @@ export default function SearchBar() {
     
     return (
         <div>
-            <Input value={username} placeholder="username" onChange={(e) => setUsername(e.target.value)}/>
-            {users.map((user) => (
-                <UserCard user={user} />
-            ))}
+            <Input value={username} placeholder="username" onChange={(e) => setUsername(e.target.value)} />
+            {users.length === 0 ?
+                <p className="text-center text-muted-foreground text-sm mt-4">No users found</p>
+                :
+                users.map((user) => (
+                    <UserCard user={user} key={user.id}/>
+                ))
+            }
         </div>
     )
 }
