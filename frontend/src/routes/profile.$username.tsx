@@ -4,6 +4,7 @@ import FollowList from '@/components/FollowList';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/contexts/auth';
 import type { UserProfile } from '@/types/user';
 import { createFileRoute } from '@tanstack/react-router'
@@ -34,11 +35,11 @@ function RouteComponent() {
     const { isAuthenticated, currentUser } = useAuth();
     const { user, error } = Route.useLoaderData();
 
-    // const [activeTab, setActiveTab] = useState<string>('followers');
+    const [activeTab, setActiveTab] = useState<string>('followers');
 
-    // const handleTabChange = (tab: string) => {
-    //     setActiveTab(tab);
-    // }
+    const handleTabChange = (tab: string) => {
+        setActiveTab(tab);
+    }
 
     if (error) {
         return (
@@ -49,7 +50,7 @@ function RouteComponent() {
     }
 
     return (
-        <div className='p-5 bg-red-300 min-h-svh w-svh'>
+        <div className='p-5 bg-red-300 min-h-svh w-screen'>
             <div className='flex gap-5'>
                 <Avatar className='w-20 h-20'>
                     <AvatarImage src={user?.avatar_url} />
@@ -59,25 +60,32 @@ function RouteComponent() {
                 </Avatar>
                 <div>
                     <p className='text-xl mb-4'>{user?.username}</p>
-                    {/* <Dialog>
-                        <DialogTrigger asChild>
-                            <Button type='button' onClick={() => handleTabChange('followers')}>128 followers</Button>
-                        </DialogTrigger>
 
-                        <DialogTrigger asChild>
-                            <Button type='button' onClick={() => handleTabChange('followings')}>125 followings</Button>
-                        </DialogTrigger>
-
-                        <FollowList selectedTab={activeTab} onTabChange={handleTabChange} user_id={user?.id} />
-                    </Dialog> */}
                     {isAuthenticated &&
-                        <div className='flex gap-2'>
-                            <Button>Message</Button>
-                            <FollowButton user={user} />
+                        <div>
+                            <div className='flex gap-2'>
+                                <Button>Message</Button>
+                                <FollowButton user={user} />
+                            </div>
                         </div>
                     }
                 </div>
             </div>            
+            <Separator className='mt-5' />
+            <div className='flex items-center justify-between mt-2 px-10'>
+                <p>127 posts</p>
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <p className='cursor-pointer' onClick={() => handleTabChange('followers')}>128 followers</p>
+                    </DialogTrigger>
+
+                    <DialogTrigger asChild>
+                        <p className='cursor-pointer' onClick={() => handleTabChange('followings')}>125 followings</p>
+                    </DialogTrigger>
+
+                    <FollowList selectedTab={activeTab} onTabChange={handleTabChange} user_id={user?.id} />
+                </Dialog>
+            </div>
         </div>
     )
 }
