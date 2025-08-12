@@ -10,16 +10,16 @@ interface UserCardProps{
 export default function UserCard({user}: UserCardProps) {
     
     return (
-        <div className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+        <Link to="/profile/$username" params={{username: user.username}} className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
             <Avatar>
                 <AvatarImage src={user.avatar_url} />
                 <AvatarFallback>
                     <CircleUserRound />
                 </AvatarFallback>
             </Avatar>
-            <Link to="/profile/$username" params={{username: user.username}}>
+            <div>
                 <p>{user.username}</p>
-            </Link>
-        </div>
+            </div>
+        </Link>
     )
 }
