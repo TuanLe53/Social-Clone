@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, TIMESTAMP, ForeignKey, Boolean, DateTime
+from sqlalchemy import Column, String, TIMESTAMP, ForeignKey, Boolean, DateTime, Text, Integer
 from sqlalchemy_utils import UUIDType
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
@@ -48,3 +48,26 @@ class RefreshToken(Base):
     id = Column(UUIDType(binary=False), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUIDType(binary=False), ForeignKey("users.id"))
     expires = Column(DateTime, nullable=False)
+    
+class Post(Base):
+    __tablename__ = "posts"
+    id = Column(UUIDType(binary=False), primary_key=True, default=uuid.uuid4)
+    content = Column(Text, nullable=True)
+        
+    like_count = Column(Integer, default=0, nullable=False)
+    comment_count = Column(Integer, default=0, nullable=False)
+    share_count = Column(Integer, default=0, nullable=False)
+    
+    created_by = Column(UUIDType(binary=False), ForeignKey("users.id"))
+    created_at = Column(TIMESTAMP, nullable=False, server_default=func.now())
+    
+    creator = relationship("User", backref="posts")
+    images = relationship("PostImage", back_populates="post", cascade="all, delete-orphan")
+    
+class PostImage(Base):
+    __tablename__ = "post_images"
+    id = Column(UUIDType(binary=False), primary_key=True, default=uuid.uuid4)
+    post_id = Column(UUIDType(binary=False), ForeignKey("posts.id"))
+    image_url = Column(String(500), nullable=False)
+    
+    post = relationship("Post", back_populates="images")
