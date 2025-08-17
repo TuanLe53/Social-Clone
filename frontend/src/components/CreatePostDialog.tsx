@@ -6,10 +6,14 @@ import { Label } from "./ui/label";
 import { useState, type ChangeEvent } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "./ui/carousel";
 import { Button } from "./ui/button";
+import { Textarea } from "./ui/textarea";
+import { createPost } from "@/api/post";
+import { toast } from "sonner";
 
 export default function CreatePostDialog() {
     const { open } = useSidebar();
 
+    const [content, setContent] = useState<string>("");
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [previewUrls, setPreviewUrls] = useState<string[]>([]);
 
@@ -35,8 +39,30 @@ export default function CreatePostDialog() {
         setPreviewUrls(newUrls);
     };
 
-    const handleUpload = () => {
-        console.log("Uploading files:", selectedFiles);
+    const handleUpload = async () => {
+        const formData = new FormData();
+        
+        // Append content field first
+        formData.append("content", content);
+        
+        // Append each file to the 'photos' field
+        // It's crucial to append each file individually, with the same key
+        selectedFiles.forEach(file => {
+            formData.append("photos", file);
+        });
+
+        try {
+            const res = await createPost(formData);
+            // console.log("Post created successfully:", res.data);
+            toast.success("Post created successfully!");
+
+            setSelectedFiles([]);
+            setPreviewUrls([]);
+            setContent("");
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.detail || "An error occurred";
+            console.error("Error creating post:", errorMessage);
+        }
     }
     
     return (
@@ -77,7 +103,16 @@ export default function CreatePostDialog() {
                             <CarouselPrevious />
                             <CarouselNext />
                         </Carousel>
-                        <Button onClick={handleUpload}>Upload</Button>
+                        <div className="grid w-full max-w-sm items-center gap-3">
+                            <Label htmlFor="content">Content</Label>
+                            <Textarea
+                                id="content"
+                                placeholder="What's on your mind?"
+                                value={content}
+                                onChange={(e) => setContent(e.target.value)}
+                            />
+                        </div>
+                        <Button onClick={handleUpload} disabled={selectedFiles.length === 0}>Upload</Button>
                     </div>
                 )}
             </DialogContent>
