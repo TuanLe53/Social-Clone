@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.sockets.socket import sio_app
 
@@ -27,6 +28,7 @@ app.add_middleware(
 )
 
 app.mount("/ws", sio_app)
+app.mount("/static", StaticFiles(directory="./app/statics"), name="static")
 
 app.include_router(auth_router)
 app.include_router(user_router)
