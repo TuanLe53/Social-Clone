@@ -1,6 +1,6 @@
 import { login } from "@/api/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
@@ -103,6 +103,12 @@ export default function LoginForm() {
                 </svg>
                 Login with GitHub
             </Button>
+            <div className="text-center text-sm mt-2">
+                Don&apos;t have an account?{" "}
+                <Link to="/register" className="underline underline-offset-4">
+                    Sign up
+                </Link>
+            </div>
         </div>
     )
 }
