@@ -45,7 +45,10 @@ async def github_code(response: Response, code: str, state: str, db: Session = D
         
         existing_provider = get_provider_by_provider_id(db, str(github_user["id"]), "github")
         if not existing_provider:
-            raise HTTPException(status_code=404, detail="GitHub account not linked")
+            return RedirectResponse(
+                url=f"http://localhost:3000/login?error=GitHub account not linked",
+                status_code=302
+            )
         
         user = existing_provider.user
         
