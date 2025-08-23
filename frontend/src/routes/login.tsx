@@ -18,10 +18,8 @@ function RouteComponent() {
   
   useEffect(() => {
     if (search.error) {
-      console.log("Running")
-      toast.error(search.error);
+      toast.error(decodeURIComponent(search.error));
     }
-    console.log('Run', search.error);
   }, [search]);
 
   return (
