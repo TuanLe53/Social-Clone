@@ -89,7 +89,10 @@ async def github_code(response: Response, code: str, state: str, db: Session = D
         if existing_user:
             existing_provider = get_provider_by_provider_id(db, str(github_user["id"]), "github")
             if existing_provider:
-                return {"message": "User already registered with GitHub"}
+                return RedirectResponse(
+                    url=f"http://localhost:3000/register?error=User already registered with GitHub",
+                    status_code=302
+                )
 
             create_auth_provider(db, existing_user.id, "github", github_user["id"])
             
