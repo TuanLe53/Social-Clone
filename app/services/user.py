@@ -137,3 +137,10 @@ def get_following_by_user_id(db_session: Session, user_id: str) -> list[User]:
         raise HTTPException(status_code=400, detail="User not found")
     
     return user.following
+
+def update_user_avatar(db_session: Session, user: User, avatar_url: str) -> User:
+    user.avatar_url = avatar_url
+    db_session.commit()
+    db_session.refresh(user)
+    
+    return user.avatar_url
