@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 from typing import Annotated
 from uuid import UUID
@@ -7,7 +7,14 @@ from app.db.database import get_db
 from app.db.models import User
 from app.schemas.user import UserProfile
 from app.dependencies import get_current_user
-from app.services.user import follow_user, unfollow_user, get_followers_by_user_id, get_following_by_user_id, get_user_by_username, search_users_by_username, is_user_follows
+from app.services.user import follow_user, unfollow_user, get_followers_by_user_id, get_following_by_user_id, get_user_by_username, search_users_by_username, is_user_follows, update_user_avatar
+
+import os
+import shutil
+
+UPLOAD_DIRECTORY = "./app/statics/avatars"
+
+os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
 router = APIRouter(
     prefix="/user",
@@ -62,3 +69,16 @@ async def get_followers(user_id: UUID, db: Session = Depends(get_db)):
 async def get_followers(user_id: UUID, db: Session = Depends(get_db)):
     followings = get_following_by_user_id(db, user_id)
     return followings
+
+@router.put("/update_avatar/")
+async def update_avatar(user: Annotated[User, Depends(get_current_user)], photo: UploadFile, db: Session = Depends(get_db)):
+    file_path = os.path.join(UPLOAD_DIRECTORY, photo.filename)
+    
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(photo.file, buffer)
+        
+    avatar_url = f"http://127.0.0.1:8000/static/avatars/{photo.filename}"
+    
+    new_avatar_url = update_user_avatar(db, user, avatar_url)
+    
+    return new_avatar_url
