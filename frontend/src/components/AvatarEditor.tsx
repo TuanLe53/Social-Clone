@@ -5,6 +5,8 @@ import { Button } from "./ui/button";
 import { useState, type ChangeEvent } from "react";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { updateAvatar } from "@/api/user";
+import { toast } from "sonner";
 
 export default function AvatarEditor() {
     const [selectedFiles, setSelectedFiles] = useState<File | null>(null);
@@ -20,6 +22,24 @@ export default function AvatarEditor() {
             setPreviewUrls(url);
         }
     };
+
+    const handleUpdate = async () => {
+        const formData = new FormData();
+        if (selectedFiles) {
+            formData.append("photo", selectedFiles)
+            
+            try {
+                const res = await updateAvatar(formData);
+
+                toast.success("Avatar updated successfully!");
+                setSelectedFiles(null);
+                setPreviewUrls(null);
+            } catch (error: any) {
+                const errorMessage = error.response?.data?.detail || "An error occurred";
+                console.error("Error creating post:", errorMessage);
+            }
+        }
+    }
 
     return (
         <Badge
@@ -48,7 +68,7 @@ export default function AvatarEditor() {
                     </div>
 
                     <DialogFooter>
-                        <Button>Save changes</Button>
+                        <Button onClick={handleUpdate}>Save changes</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
