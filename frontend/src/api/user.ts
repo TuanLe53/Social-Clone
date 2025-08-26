@@ -8,3 +8,8 @@ export const unfollowUser = (user_id: string) => privateAPI.delete(`/user/follow
 export const isFollowingUser = (user_id: string) => privateAPI.get(`/user/is_following/${user_id}`);
 export const getFollowers = (user_id: string) => publicAPI.get(`/user/followers/?user_id=${user_id}`);
 export const getFollowings = (user_id: string) => publicAPI.get(`/user/followings/?user_id=${user_id}`);
+export const updateAvatar = (formData: FormData) => privateAPI.put('/user/update_avatar/', formData, {
+    headers: {
+        'Content-Type': 'multipart/form-data',
+    },
+});
