@@ -1,14 +1,16 @@
 import { getProfile } from '@/api/user';
+import AvatarEditor from '@/components/AvatarEditor';
 import FollowButton from '@/components/buttons/FollowButton';
 import FollowList from '@/components/FollowList';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/contexts/auth';
 import type { UserProfile } from '@/types/user';
 import { createFileRoute } from '@tanstack/react-router'
-import { UserRound } from 'lucide-react';
+import { Pencil, UserRound } from 'lucide-react';
 import { useState } from 'react';
 
 export const Route = createFileRoute('/profile/$username')({
@@ -34,6 +36,7 @@ export const Route = createFileRoute('/profile/$username')({
 function RouteComponent() {
     const { isAuthenticated, currentUser } = useAuth();
     const { user, error } = Route.useLoaderData();
+    const isOwnProfile = isAuthenticated && currentUser?.id === user?.id;
 
     const [activeTab, setActiveTab] = useState<string>('followers');
 
@@ -52,12 +55,19 @@ function RouteComponent() {
     return (
         <div className='p-5 bg-red-300 min-h-svh w-screen'>
             <div className='flex gap-5'>
-                <Avatar className='w-20 h-20'>
-                    <AvatarImage src={user?.avatar_url} />
-                    <AvatarFallback>
-                        <UserRound className='w-full h-full' />
-                    </AvatarFallback>
-                </Avatar>
+                
+                <div className='relative'>
+                    <Avatar className='w-20 h-20'>
+                        <AvatarImage src={user?.avatar_url} />
+                        <AvatarFallback>
+                            <UserRound className='w-full h-full' />
+                        </AvatarFallback>
+                    </Avatar>
+                    {isOwnProfile &&                    
+                        <AvatarEditor />
+                    }
+                </div>
+
                 <div>
                     <p className='text-xl mb-4'>{user?.username}</p>
 
