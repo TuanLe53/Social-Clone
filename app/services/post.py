@@ -28,3 +28,10 @@ def create_post(
     
     return post
 
+def get_posts_by_user_id(db_session: Session, user_id: str, limit: int, offset: int) -> list[Post]:
+    return db_session.query(Post)\
+        .filter(Post.created_by == user_id)\
+        .order_by(Post.created_at.desc())\
+        .limit(limit)\
+        .offset(offset)\
+        .all()
