@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.db.models import Post, User, PostImage
 
 STATIC_URL = "http://127.0.0.1:8000/static/post_photos/"
@@ -30,6 +30,7 @@ def create_post(
 
 def get_posts_by_user_id(db_session: Session, user_id: str, limit: int, offset: int) -> list[Post]:
     return db_session.query(Post)\
+        .options(joinedload(Post.images))\
         .filter(Post.created_by == user_id)\
         .order_by(Post.created_at.desc())\
         .limit(limit)\
