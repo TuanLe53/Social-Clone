@@ -1,3 +1,5 @@
+import type { UserProfile } from "./user";
+
 export interface Post{
     id: string;
     content: string;
@@ -6,7 +8,7 @@ export interface Post{
     comment_count: number;
     share_count: number;
 
-    created_by: string;
+    creator: UserProfile;
     created_at: string;
 
     images: PostImage[];
