@@ -1,6 +1,7 @@
 import { getPostsByUser } from "@/api/post";
 import type { Post } from "@/types/post";
 import { useEffect, useState } from "react"
+import PostCard from "./PostCard";
 
 interface PostsProps{
     user_id: string;
@@ -25,8 +26,10 @@ export default function Posts({user_id}: PostsProps) {
     
 
     return (
-        <div>
-            Posts
+        <div className="grid grid-cols-3">
+            {posts.map((post) => (
+                <PostCard key={post.id} post={post}/>
+            ))}
         </div>
     )
 }
