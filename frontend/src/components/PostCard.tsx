@@ -1,12 +1,13 @@
 import type { Post } from "@/types/post"
-import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
-import { Heart, MessageCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { CircleUserRound, Ellipsis, Heart, MessageCircle } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 interface PostCardProps {
     post: Post;
 }
 
-export default function PostCard({post}: PostCardProps) {
+export default function PostCard({ post }: PostCardProps) {
     console.log(post)
     return (
         <Dialog>
@@ -27,6 +28,27 @@ export default function PostCard({post}: PostCardProps) {
             </DialogTrigger>
 
             <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>
+                        <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2 p-2 rounded-md">
+                                <Avatar>
+                                    <AvatarImage src={post.creator.avatar_url} />
+                                    <AvatarFallback>
+                                        <CircleUserRound />
+                                    </AvatarFallback>
+                                </Avatar>
+                                <p>{post.creator.username}</p>
+                            </div>
+
+                            <div>
+                                <Ellipsis />
+                            </div>
+
+                        </div>
+                    </DialogTitle>
+                </DialogHeader>
+
                 <div>
                     <p>{post.content}</p>
                 </div>
