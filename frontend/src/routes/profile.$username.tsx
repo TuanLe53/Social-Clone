@@ -2,15 +2,15 @@ import { getProfile } from '@/api/user';
 import AvatarEditor from '@/components/AvatarEditor';
 import FollowButton from '@/components/buttons/FollowButton';
 import FollowList from '@/components/FollowList';
+import Posts from '@/components/Posts';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/contexts/auth';
 import type { UserProfile } from '@/types/user';
 import { createFileRoute } from '@tanstack/react-router'
-import { Pencil, UserRound } from 'lucide-react';
+import { UserRound } from 'lucide-react';
 import { useState } from 'react';
 
 export const Route = createFileRoute('/profile/$username')({
@@ -53,7 +53,7 @@ function RouteComponent() {
     }
 
     return (
-        <div className='p-5 bg-red-300 min-h-svh w-screen'>
+        <div className='md:p-5 bg-red-300 min-h-svh w-screen'>
             <div className='flex gap-5'>
                 
                 <div className='relative'>
@@ -95,6 +95,9 @@ function RouteComponent() {
 
                     <FollowList selectedTab={activeTab} onTabChange={handleTabChange} user_id={user?.id} />
                 </Dialog>
+            </div>
+            <div>
+                <Posts user_id={user?.id} />
             </div>
         </div>
     )
