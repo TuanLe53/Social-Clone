@@ -28,7 +28,7 @@ export default function PostCard({ post }: PostCardProps) {
                 </div>
             </DialogTrigger>
 
-            <DialogContent className="w-[70%]">
+            <DialogContent className="w-[70%]" showCloseButton={false}>
                 <DialogHeader>
                     <DialogTitle>
                         <div className="flex justify-between items-center">
