@@ -6,6 +6,7 @@ from app.services.post import create_post as create_post_service, get_posts_by_u
 from app.db.models import User
 from app.dependencies import get_current_user
 from app.db.database import get_db
+from app.schemas.post import PostSchema
 
 import os
 import shutil
@@ -39,7 +40,7 @@ async def create_post(user: Annotated[User, Depends(get_current_user)], content:
     
     return post
 
-@router.get("/user/{user_id}")
+@router.get("/user/{user_id}", response_model=list[PostSchema])
 async def get_posts_by_user(user_id: str, limit: int = 10, offset: int = 0, db: Session = Depends(get_db)):
     posts = get_posts_by_user_id(db_session=db, user_id=user_id, limit=limit, offset=offset)
     return posts
