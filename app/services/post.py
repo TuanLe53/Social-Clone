@@ -30,7 +30,7 @@ def create_post(
 
 def get_posts_by_user_id(db_session: Session, user_id: str, limit: int, offset: int) -> list[Post]:
     return db_session.query(Post)\
-        .options(joinedload(Post.images))\
+        .options(joinedload(Post.images), joinedload(Post.creator))\
         .filter(Post.created_by == user_id)\
         .order_by(Post.created_at.desc())\
         .limit(limit)\
