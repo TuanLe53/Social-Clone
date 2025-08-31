@@ -61,7 +61,7 @@ class Post(Base):
     created_by = Column(UUIDType(binary=False), ForeignKey("users.id"))
     created_at = Column(TIMESTAMP, nullable=False, server_default=func.now())
     
-    # creator = relationship("User", backref="posts")
+    creator = relationship("User", backref="posts")
     images = relationship("PostImage", back_populates="post", cascade="all, delete-orphan")
     
 class PostImage(Base):
