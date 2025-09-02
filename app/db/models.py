@@ -34,6 +34,7 @@ class User(Base):
             secondaryjoin=id == Follow.following_id,
             backref="followers",
         )
+    liked_posts = relationship("LikePost", back_populates="user")
 
 class AuthProvider(Base):
     __tablename__ = "auth_providers"
@@ -63,6 +64,7 @@ class Post(Base):
     
     creator = relationship("User", backref="posts")
     images = relationship("PostImage", back_populates="post", cascade="all, delete-orphan")
+    liked_by_users = relationship("LikePost", back_populates="post", cascade="all, delete-orphan")
     
 class PostImage(Base):
     __tablename__ = "post_images"
@@ -71,3 +73,15 @@ class PostImage(Base):
     image_url = Column(String(500), nullable=False)
     
     post = relationship("Post", back_populates="images")
+    
+class LikePost(Base):
+    __tablename__ = "like_posts"
+    
+    user_id = Column(UUIDType(binary=False), ForeignKey("users.id"), primary_key=True)
+    post_id = Column(UUIDType(binary=False), ForeignKey("posts.id"), primary_key=True)
+    
+    created_at = Column(TIMESTAMP, nullable=False, server_default=func.now())
+    
+    user = relationship("User", back_populates="liked_posts")
+    post = relationship("Post", back_populates="liked_by_users")
+    
