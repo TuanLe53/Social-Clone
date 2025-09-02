@@ -3,12 +3,15 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { CircleUserRound, Ellipsis, Heart, MessageCircle, Send } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "./ui/carousel";
+import LikeButton from "./buttons/LikeButton";
+import { useAuth } from "@/contexts/auth";
 
 interface PostCardProps {
     post: Post;
 }
 
 export default function PostCard({ post }: PostCardProps) {
+    const {isAuthenticated} = useAuth();
 
     return (
         <Dialog>
@@ -64,13 +67,15 @@ export default function PostCard({ post }: PostCardProps) {
                     </Carousel>
                 </div>
 
-                <DialogFooter>
-                    <div className="flex gap-4 items-center">
-                        <Heart className="hover:cursor-pointer"/>
-                        <MessageCircle className="hover:cursor-pointer"/>
-                        <Send className="hover:cursor-pointer"/>
-                    </div>
-                </DialogFooter>
+                {isAuthenticated &&                
+                    <DialogFooter>
+                        <div className="flex gap-4 items-center">
+                            <LikeButton postId={post.id} />
+                            <MessageCircle className="hover:cursor-pointer"/>
+                            <Send className="hover:cursor-pointer"/>
+                        </div>
+                    </DialogFooter>
+                }
             </DialogContent>
         </Dialog>
     )
