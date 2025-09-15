@@ -1,9 +1,9 @@
 import { Smile } from "lucide-react";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { useState } from "react";
 import { EmojiPicker, EmojiPickerContent, EmojiPickerFooter, EmojiPickerSearch } from "./ui/emoji-picker";
+import { Textarea } from "./ui/textarea";
 
 interface AddCommentProps {
     isOpen: boolean;
@@ -20,6 +20,14 @@ export default function AddComment({ isOpen }: AddCommentProps) {
 
     const onCommentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setComment(event.target.value);
+    }
+
+    const postComment = async () => {
+        console.log("Posting comment:", comment);
+        // Here you would typically make an API call to post the comment
+        // For example:
+        // await api.post('/comments', { content: comment });
+        setComment(""); // Clear the comment input after posting
     }
     
     return (
@@ -42,8 +50,8 @@ export default function AddComment({ isOpen }: AddCommentProps) {
 
                 </PopoverContent>
             </Popover>
-            <Input onChange={onCommentChange} value={comment} placeholder="Add a comment..." className="border-0 ring-0 focus-visible:ring-0 shadow-none"/>
-            <Button variant="link">Post</Button>
+            <Textarea onChange={onCommentChange} value={comment} placeholder="Add a comment..." className="max-h-24 border-0 ring-0 focus-visible:ring-0 shadow-none resize-none" />
+            <Button onClick={postComment} variant="link">Post</Button>
         </div>
     )
 }
