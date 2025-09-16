@@ -4,12 +4,16 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { useState } from "react";
 import { EmojiPicker, EmojiPickerContent, EmojiPickerFooter, EmojiPickerSearch } from "./ui/emoji-picker";
 import { Textarea } from "./ui/textarea";
+import { postComment } from "@/api/comment";
+import { toast } from "sonner";
 
 interface AddCommentProps {
     isOpen: boolean;
+    postId: string;
+    parentId?: string;
 }
 
-export default function AddComment({ isOpen }: AddCommentProps) {
+export default function AddComment({ isOpen, postId, parentId }: AddCommentProps) {
     const [openEmojiPicker, setIsOpenEmojiPicker] = useState(false);
     const [comment, setComment] = useState("");
 
@@ -22,12 +26,23 @@ export default function AddComment({ isOpen }: AddCommentProps) {
         setComment(event.target.value);
     }
 
-    const postComment = async () => {
-        console.log("Posting comment:", comment);
-        // Here you would typically make an API call to post the comment
-        // For example:
-        // await api.post('/comments', { content: comment });
-        setComment(""); // Clear the comment input after posting
+    const handleClick = async () => {
+        const commentData = {
+            content: comment,
+            postId,
+            parentId: parentId || null,
+        }
+        // console.log("Posting comment:", commentData);
+
+        try {
+            await postComment(commentData);
+            toast.success("Comment posted successfully!");
+            setComment(""); // Clear the comment input after posting
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.detail || "An error occurred";
+            console.error("Error creating post:", errorMessage);
+        }
+
     }
     
     return (
@@ -51,7 +66,7 @@ export default function AddComment({ isOpen }: AddCommentProps) {
                 </PopoverContent>
             </Popover>
             <Textarea onChange={onCommentChange} value={comment} placeholder="Add a comment..." className="max-h-24 border-0 ring-0 focus-visible:ring-0 shadow-none resize-none" />
-            <Button onClick={postComment} variant="link">Post</Button>
+            <Button onClick={handleClick} variant="link">Post</Button>
         </div>
     )
 }
