@@ -16,8 +16,6 @@ interface PostCardProps {
 export default function PostCard({ post }: PostCardProps) {
     const { isAuthenticated } = useAuth();
     
-    const [isOpen, setIsOpen] = useState(false);
-    const toggleOpen = () => setIsOpen(!isOpen);
 
     return (
         <Dialog>
@@ -41,15 +39,8 @@ export default function PostCard({ post }: PostCardProps) {
                 <PostCardHeader user={post.creator} />
                 <PostCardImageCarousel images={post.images} />
 
-                {isAuthenticated &&                
-                    <DialogFooter>
-                        <AddComment isOpen={isOpen} postId={post.id} />
-                        <div className="flex gap-4 items-center">
-                            <LikeButton postId={post.id} />
-                            <MessageCircle className="hover:cursor-pointer" onClick={toggleOpen}/>
-                            <Send className="hover:cursor-pointer"/>
-                        </div>
-                    </DialogFooter>
+                {isAuthenticated &&
+                    <PostCardFooter postId={post.id} />
                 }
             </DialogContent>
         </Dialog>
@@ -98,5 +89,25 @@ function PostCardImageCarousel({ images }: PostCardImageCarouselProps) {
                 <CarouselNext />
             </Carousel>
         </div>
+    )
+}
+
+interface PostCardFooterProps {
+    postId: string;
+}
+
+function PostCardFooter({postId}: PostCardFooterProps) {
+    const [isOpen, setIsOpen] = useState(false);
+    const toggleOpen = () => setIsOpen(!isOpen);
+
+    return (
+        <DialogFooter>
+            <AddComment isOpen={isOpen} postId={postId} />
+            <div className="flex gap-4 items-center">
+                <LikeButton postId={postId} />
+                <MessageCircle className="hover:cursor-pointer" onClick={toggleOpen}/>
+                <Send className="hover:cursor-pointer"/>
+            </div>
+        </DialogFooter>
     )
 }
