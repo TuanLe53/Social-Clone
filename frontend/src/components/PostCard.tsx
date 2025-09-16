@@ -1,12 +1,13 @@
 import type { Post } from "@/types/post"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
-import { CircleUserRound, Ellipsis, Heart, MessageCircle, Send } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Ellipsis, Heart, MessageCircle, Send } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "./ui/carousel";
 import LikeButton from "./buttons/LikeButton";
 import { useAuth } from "@/contexts/auth";
 import { useState } from "react";
 import AddComment from "./AddComment";
+import type { UserProfile } from "@/types/user";
+import UserAvatarLink from "./UserAvatarLink";
 
 interface PostCardProps {
     post: Post;
@@ -37,26 +38,7 @@ export default function PostCard({ post }: PostCardProps) {
             </DialogTrigger>
 
             <DialogContent className="w-[70%]" showCloseButton={false}>
-                <DialogHeader>
-                    <DialogTitle>
-                        <div className="flex justify-between items-center">
-                            <div className="flex items-center gap-2 p-2 rounded-md">
-                                <Avatar>
-                                    <AvatarImage src={post.creator.avatar_url} />
-                                    <AvatarFallback>
-                                        <CircleUserRound />
-                                    </AvatarFallback>
-                                </Avatar>
-                                <p>{post.creator.username}</p>
-                            </div>
-
-                            <div>
-                                <Ellipsis />
-                            </div>
-
-                        </div>
-                    </DialogTitle>
-                </DialogHeader>
+                <PostCardHeader user={post.creator} />
 
                 <div className="w-full">
                     <Carousel>
@@ -84,5 +66,27 @@ export default function PostCard({ post }: PostCardProps) {
                 }
             </DialogContent>
         </Dialog>
+    )
+}
+
+interface PostCardHeaderProps { 
+    user: UserProfile;
+}
+
+function PostCardHeader({ user }: PostCardHeaderProps) {
+    
+    return (
+        <DialogHeader>
+            <DialogTitle>
+                <div className="flex justify-between items-center">
+                    <UserAvatarLink user={user} />
+
+                    <div>
+                        <Ellipsis />
+                    </div>
+
+                </div>
+            </DialogTitle>
+        </DialogHeader>
     )
 }
