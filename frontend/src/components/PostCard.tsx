@@ -5,13 +5,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "./ui/carousel";
 import LikeButton from "./buttons/LikeButton";
 import { useAuth } from "@/contexts/auth";
+import { useState } from "react";
+import AddComment from "./AddComment";
 
 interface PostCardProps {
     post: Post;
 }
 
 export default function PostCard({ post }: PostCardProps) {
-    const {isAuthenticated} = useAuth();
+    const { isAuthenticated } = useAuth();
+    
+    const [isOpen, setIsOpen] = useState(false);
+    const toggleOpen = () => setIsOpen(!isOpen);
 
     return (
         <Dialog>
@@ -69,9 +74,10 @@ export default function PostCard({ post }: PostCardProps) {
 
                 {isAuthenticated &&                
                     <DialogFooter>
+                        <AddComment isOpen={isOpen} postId={post.id} />
                         <div className="flex gap-4 items-center">
                             <LikeButton postId={post.id} />
-                            <MessageCircle className="hover:cursor-pointer"/>
+                            <MessageCircle className="hover:cursor-pointer" onClick={toggleOpen}/>
                             <Send className="hover:cursor-pointer"/>
                         </div>
                     </DialogFooter>
