@@ -7,6 +7,7 @@ from app.sockets.socket import sio_app
 from app.routers.auth import router as auth_router
 from app.routers.user import router as user_router
 from app.routers.post import router as post_router
+from app.routers.comment import router as comment_router
 
 from app.db.database import Base, engine
 
@@ -33,6 +34,7 @@ app.mount("/static", StaticFiles(directory="./app/statics"), name="static")
 app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(post_router)
+app.include_router(comment_router)
 
 @app.get("/")
 async def root():
