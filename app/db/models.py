@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String, TIMESTAMP, ForeignKey, Boolean, DateTime, Text, Integer
 from sqlalchemy_utils import UUIDType
 from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from app.db.database import Base
 import uuid
 
@@ -84,4 +84,21 @@ class LikePost(Base):
     
     user = relationship("User", back_populates="liked_posts")
     post = relationship("Post", back_populates="liked_by_users")
+
+class Comment(Base):
+    __tablename__ = "comments"
+    
+    id = Column(UUIDType(binary=False), primary_key=True, default=uuid.uuid4)
+    content = Column(Text, nullable=False)
+    
+    parent_id = Column(UUIDType(binary=False), ForeignKey("comments.id"), nullable=True)
+    children = relationship(
+        "Comment",
+        backref=backref('parent', remote_side=[id]),
+        cascade="all, delete-orphan"
+    )
+    
+    post_id = Column(UUIDType(binary=False), ForeignKey("posts.id"))
+    created_by = Column(UUIDType(binary=False), ForeignKey("users.id"))
+    created_at = Column(TIMESTAMP, nullable=False, server_default=func.now())
     
