@@ -1,4 +1,4 @@
-import type { Post } from "@/types/post"
+import type { Post, PostImage } from "@/types/post"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Ellipsis, Heart, MessageCircle, Send } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "./ui/carousel";
@@ -39,20 +39,7 @@ export default function PostCard({ post }: PostCardProps) {
 
             <DialogContent className="w-[70%]" showCloseButton={false}>
                 <PostCardHeader user={post.creator} />
-
-                <div className="w-full">
-                    <Carousel>
-                        <CarouselContent>
-                            {post.images.map((image, index) => (
-                                <CarouselItem key={index} className="flex justify-center">
-                                    <img src={image.image_url} alt={`Post: ${post.id}`} className="w-full h-full object-contain aspect-[4/5]" />
-                                </CarouselItem>
-                            ))}
-                        </CarouselContent>
-                        <CarouselPrevious />
-                        <CarouselNext />
-                    </Carousel>
-                </div>
+                <PostCardImageCarousel images={post.images} />
 
                 {isAuthenticated &&                
                     <DialogFooter>
@@ -88,5 +75,28 @@ function PostCardHeader({ user }: PostCardHeaderProps) {
                 </div>
             </DialogTitle>
         </DialogHeader>
+    )
+}
+
+interface PostCardImageCarouselProps {
+    images: PostImage[];
+}
+
+function PostCardImageCarousel({ images }: PostCardImageCarouselProps) {
+
+    return (
+        <div className="w-full">
+            <Carousel>
+                <CarouselContent>
+                    {images.map((image, index) => (
+                        <CarouselItem key={index} className="flex justify-center">
+                            <img src={image.image_url} alt={`Post: ${image.post_id}`} className="w-full h-full object-contain aspect-[4/5]" />
+                        </CarouselItem>
+                    ))}
+                </CarouselContent>
+                <CarouselPrevious />
+                <CarouselNext />
+            </Carousel>
+        </div>
     )
 }
