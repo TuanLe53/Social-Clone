@@ -66,7 +66,7 @@ export default function AddComment({ isOpen, postId, parentId }: AddCommentProps
                 </PopoverContent>
             </Popover>
             <Textarea onChange={onCommentChange} value={comment} placeholder="Add a comment..." className="max-h-24 border-0 ring-0 focus-visible:ring-0 shadow-none resize-none" />
-            <Button onClick={handleClick} variant="link">Post</Button>
+            <Button disabled={comment.length === 0} onClick={handleClick} variant="link">Post</Button>
         </div>
     )
 }
