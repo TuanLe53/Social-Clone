@@ -8,6 +8,7 @@ import { useState } from "react";
 import AddComment from "./AddComment";
 import type { UserProfile } from "@/types/user";
 import UserAvatarLink from "./UserAvatarLink";
+import { useWindowWidth } from "@/hooks/useWindowWidth";
 
 interface PostCardProps {
     post: Post;
@@ -16,6 +17,8 @@ interface PostCardProps {
 export default function PostCard({ post }: PostCardProps) {
     const { isAuthenticated } = useAuth();
     
+    const width = useWindowWidth();
+    const isMobile = width <= 768;
 
     return (
         <Dialog>
@@ -35,12 +38,30 @@ export default function PostCard({ post }: PostCardProps) {
                 </div>
             </DialogTrigger>
 
-            <DialogContent className="w-[70%]" showCloseButton={false}>
-                <PostCardHeader user={post.creator} />
-                <PostCardImageCarousel images={post.images} />
-
-                {isAuthenticated &&
-                    <PostCardFooter postId={post.id} />
+            <DialogContent className="w-[70%] max-h-[90%] md:min-w-3/4 md:flex md:p-0" showCloseButton={false}>
+                
+            
+                {isMobile ?
+                    <>
+                        <PostCardHeader user={post.creator} />
+                        <PostCardImageCarousel images={post.images} />
+                        {isAuthenticated &&
+                            <PostCardFooter postId={post.id} />
+                        }
+                    </>
+                    :
+                    <>
+                        <div className="bg-black/80 w-1/2">
+                            <PostCardImageCarousel images={post.images} />
+                        </div>
+                        <div className="w-1/2 p-4">
+                            <PostCardHeader user={post.creator} />
+                            <PostCardComments />
+                            {isAuthenticated &&
+                                <PostCardFooter postId={post.id} />
+                            }
+                        </div>
+                    </>
                 }
             </DialogContent>
         </Dialog>
@@ -109,5 +130,13 @@ function PostCardFooter({postId}: PostCardFooterProps) {
                 <Send className="hover:cursor-pointer"/>
             </div>
         </DialogFooter>
+    )
+}
+
+function PostCardComments() {
+    return (
+        <div className="h-4/5 bg-gray-100">
+            Comments
+        </div>
     )
 }
