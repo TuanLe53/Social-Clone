@@ -26,3 +26,16 @@ def is_comment_exists(
     comment_id: str
 ) -> bool:
     return db_session.query(Comment).filter(Comment.id == comment_id).first() is not None
+
+def get_comments_by_post_id(
+    db_session: Session,
+    post_id: str,
+    limit: int,
+    offset: int
+) -> list[Comment]:
+    return db_session.query(Comment)\
+        .filter(Comment.post_id == post_id)\
+        .order_by(Comment.created_at.desc())\
+        .limit(limit)\
+        .offset(offset)\
+        .all()
