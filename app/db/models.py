@@ -99,6 +99,7 @@ class Comment(Base):
     )
     
     post_id = Column(UUIDType(binary=False), ForeignKey("posts.id"))
-    created_by = Column(UUIDType(binary=False), ForeignKey("users.id"))
     created_at = Column(TIMESTAMP, nullable=False, server_default=func.now())
+    created_by = Column(UUIDType(binary=False), ForeignKey("users.id"))
     
+    user = relationship("User")
