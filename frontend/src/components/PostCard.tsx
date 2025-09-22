@@ -38,7 +38,7 @@ export default function PostCard({ post }: PostCardProps) {
                 </div>
             </DialogTrigger>
 
-            <DialogContent className="w-[70%] max-h-[90%] md:min-w-3/4 md:flex md:p-0" showCloseButton={false}>
+            <DialogContent className="w-[70%] max-h-[90vh] md:min-w-3/4 md:flex md:p-0 md:min-h-[90vh]" showCloseButton={false}>
                 
             
                 {isMobile ?
@@ -51,7 +51,7 @@ export default function PostCard({ post }: PostCardProps) {
                     </>
                     :
                     <>
-                        <div className="bg-black/80 w-1/2">
+                        <div className="w-1/2">
                             <PostCardImageCarousel images={post.images} />
                         </div>
                         <div className="w-1/2 p-4">
@@ -95,14 +95,17 @@ interface PostCardImageCarouselProps {
 }
 
 function PostCardImageCarousel({ images }: PostCardImageCarouselProps) {
-
     return (
-        <div className="w-full">
-            <Carousel>
-                <CarouselContent>
+        <div className="w-full h-full flex items-center justify-center">
+            <Carousel className="w-full h-full flex items-center justify-center">
+                <CarouselContent className="h-full"> 
                     {images.map((image, index) => (
-                        <CarouselItem key={index} className="flex justify-center">
-                            <img src={image.image_url} alt={`Post: ${image.post_id}`} className="w-full h-full object-contain aspect-[4/5]" />
+                        <CarouselItem key={index} className="flex justify-center items-center h-full">
+                            <img
+                                src={image.image_url}
+                                alt={`Post: ${image.post_id}`}
+                                className="max-w-full max-h-full object-contain aspect-[4/5] md:aspect-auto"
+                            />
                         </CarouselItem>
                     ))}
                 </CarouselContent>
@@ -110,7 +113,7 @@ function PostCardImageCarousel({ images }: PostCardImageCarouselProps) {
                 <CarouselNext />
             </Carousel>
         </div>
-    )
+    );
 }
 
 interface PostCardFooterProps {
