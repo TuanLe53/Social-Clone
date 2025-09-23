@@ -4,11 +4,14 @@ import { Ellipsis, Heart, MessageCircle, Send } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "./ui/carousel";
 import LikeButton from "./buttons/LikeButton";
 import { useAuth } from "@/contexts/auth";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddComment from "./AddComment";
 import type { UserProfile } from "@/types/user";
 import UserAvatarLink from "./UserAvatarLink";
 import { useWindowWidth } from "@/hooks/useWindowWidth";
+import { getComments } from "@/api/comment";
+import type { Comment } from "@/types/comment";
+import { formatDistanceToNow, parseISO} from "date-fns";
 
 interface PostCardProps {
     post: Post;
@@ -56,7 +59,7 @@ export default function PostCard({ post }: PostCardProps) {
                         </div>
                         <div className="w-1/2 p-4">
                             <PostCardHeader user={post.creator} />
-                            <PostCardComments />
+                            <PostCardComments postId={post.id} />
                             {isAuthenticated &&
                                 <PostCardFooter postId={post.id} />
                             }
@@ -136,10 +139,57 @@ function PostCardFooter({postId}: PostCardFooterProps) {
     )
 }
 
-function PostCardComments() {
+interface PostCardCommentsProps {
+    postId: string;
+}
+
+function PostCardComments({postId}: PostCardCommentsProps) {
+    const [comments, setComments] = useState<Comment[]>([]);
+
+    useEffect(() => {
+        const fetchComments = async () => {
+            try {
+                const res = await getComments(postId);
+                setComments(res.data);
+            } catch (error: any) {
+                const errorMessage = error.response?.data?.detail || 'An error occurred';
+                console.log(errorMessage)
+            }
+        }
+
+        fetchComments()
+    }, [postId]);
+
     return (
-        <div className="h-4/5 bg-gray-100">
-            Comments
+        <div className="h-4/5 p-4">
+            {comments.length === 0 ?
+                <p>No comments</p>
+                :
+                comments.map((comment) => (
+                    <PostComment key={comment.id} comment={comment} />
+                ))
+        }
+        </div>
+    )
+}
+
+interface PostCommentProps {
+    comment: Comment;
+}
+
+function PostComment({ comment }: PostCommentProps) {
+    const timeAgo = formatDistanceToNow(parseISO(comment.created_at), { addSuffix: true });
+
+    return (
+        <div>
+            <UserAvatarLink user={comment.user} />
+            <div className="pl-2">
+                <p>{comment.content}</p>
+                <div className="flex items-center space-x-2">
+                    <span className="text-xs text-gray-500">{timeAgo}</span>
+                    <span className="text-xs text-gray-500">Reply</span>
+                </div>
+            </div>
         </div>
     )
 }
