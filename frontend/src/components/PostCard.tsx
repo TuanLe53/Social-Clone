@@ -59,7 +59,7 @@ export default function PostCard({ post }: PostCardProps) {
                         </div>
                         <div className="w-1/2 p-4">
                             <PostCardHeader user={post.creator} />
-                            <PostCardComments postId={post.id} />
+                            <PostComments postId={post.id} />
                             {isAuthenticated &&
                                 <PostCardFooter postId={post.id} />
                             }
@@ -143,7 +143,7 @@ interface PostCardCommentsProps {
     postId: string;
 }
 
-function PostCardComments({postId}: PostCardCommentsProps) {
+function PostComments({postId}: PostCardCommentsProps) {
     const [comments, setComments] = useState<Comment[]>([]);
 
     useEffect(() => {
@@ -178,13 +178,29 @@ interface PostCommentProps {
 }
 
 function PostComment({ comment }: PostCommentProps) {
+    const [showFullContent, setShowFullContent] = useState(false);
     const timeAgo = formatDistanceToNow(parseISO(comment.created_at), { addSuffix: true });
+
+    const maxLength = 135;
+    const shortContent = comment.content.substring(0, maxLength);
+
+    const isLongContent = comment.content.length > maxLength;
+
+    const toggleContent = () => {
+        setShowFullContent(!showFullContent);
+    }
 
     return (
         <div>
             <UserAvatarLink user={comment.user} />
             <div className="pl-2">
-                <p>{comment.content}</p>
+                <p>{showFullContent ? comment.content : shortContent}</p>
+                {isLongContent && !showFullContent && <p>...</p>}
+                {isLongContent && 
+                    <button className="text-sm text-blue-500 hover:underline" onClick={toggleContent}>
+                        {showFullContent ? 'Show less' : 'Read more'}
+                    </button>
+                }
                 <div className="flex items-center space-x-2">
                     <span className="text-xs text-gray-500">{timeAgo}</span>
                     <span className="text-xs text-gray-500">Reply</span>
