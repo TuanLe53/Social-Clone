@@ -179,6 +179,8 @@ interface PostCommentProps {
 
 function PostComment({ comment }: PostCommentProps) {
     const [showFullContent, setShowFullContent] = useState(false);
+    const [isOpenReply, setIsOpenReply] = useState(false);
+
     const timeAgo = formatDistanceToNow(parseISO(comment.created_at), { addSuffix: true });
 
     const maxLength = 135;
@@ -188,6 +190,10 @@ function PostComment({ comment }: PostCommentProps) {
 
     const toggleContent = () => {
         setShowFullContent(!showFullContent);
+    }
+
+    const toggleReply = () => {
+        setIsOpenReply(!isOpenReply);
     }
 
     return (
@@ -203,9 +209,10 @@ function PostComment({ comment }: PostCommentProps) {
                 }
                 <div className="flex items-center space-x-2">
                     <span className="text-xs text-gray-500">{timeAgo}</span>
-                    <span className="text-xs text-gray-500">Reply</span>
+                    <span className="text-xs text-gray-500" onClick={toggleReply}>Reply</span>
                 </div>
             </div>
+            <AddComment isOpen={isOpenReply} postId={comment.post_id} parentId={comment.id} replyToUsername={comment.user.username} />
         </div>
     )
 }
