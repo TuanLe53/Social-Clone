@@ -13,6 +13,8 @@ class Comment(BaseModel):
     content: str
     created_at: datetime
     user: UserProfile
+    post_id: UUID
+    parent_id: UUID | None = None
     
     class Config:
         from_attributes = True
